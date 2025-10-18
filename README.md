@@ -56,6 +56,5 @@ The insights help identify what aspects of the service are most frequently prais
   - Sample review table for qualitative understanding
 
 5. Deployment
-- The final application was deployed to Streamlit Cloud:
-  👉 https://transjakarta-reviews-insight.streamlit.app/
+- The final application was deployed to Streamlit Cloud: https://transjakarta-reviews-insight.streamlit.app/
 - The app allows real-time exploration of sentiment and topic trends.
