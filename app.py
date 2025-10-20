@@ -12,11 +12,36 @@ import altair as alt
 from bertopic import BERTopic
 # from nlp_id.lemmatizer import Lemmatizer
 import stanza
-import io
-import psutil, os
+import os
+import psutil
+import shutil
+import logging
 
-mem = psutil.Process(os.getpid()).memory_info().rss / (1024 * 1024)
-st.write(f"Current memory usage: {mem:.2f} MB")
+logging.basicConfig(level=logging.INFO, format="%(message)s")
+
+# === Resource Monitor ===
+def log_system_resource():
+    process = psutil.Process(os.getpid())
+    mem = process.memory_info().rss / (1024 * 1024)  # MB
+    cpu_percent = psutil.cpu_percent(interval=None)
+    total, used, free = shutil.disk_usage("/")
+
+    logging.info("\n===== STREAMLIT APP RESOURCE INFO =====")
+    logging.info(f"Current Memory Usage : {mem:.2f} MB")
+    logging.info(f"CPU Usage            : {cpu_percent:.2f}%")
+    logging.info(f"Storage Total        : {total / (1024**3):.2f} GB")
+    logging.info(f"Storage Used         : {used / (1024**3):.2f} GB")
+    logging.info(f"Storage Free         : {free / (1024**3):.2f} GB")
+    logging.info("========================================\n")
+
+# panggil langsung di awal
+log_system_resource()
+
+# import io
+# import psutil, os
+
+# mem = psutil.Process(os.getpid()).memory_info().rss / (1024 * 1024)
+# st.write(f"Current memory usage: {mem:.2f} MB")
 
 # ===============================
 # Konfigurasi halaman
@@ -966,3 +991,4 @@ with tab3:
     else:
 
         st.warning("⚠️ Please run the topic prediction first.")
+
