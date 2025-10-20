@@ -33,10 +33,10 @@ def log_system_resource():
     logging.info(f"Storage Free         : {free / (1024**3):.2f} GB")
     logging.info("========================================\n")
 
-# Jalankan log hanya sekali di awal sesi
-if "resource_logged" not in st.session_state:
-    log_system_resource()
-    st.session_state["resource_logged"] = True
+# # Jalankan log hanya sekali di awal sesi
+# if "resource_logged" not in st.session_state:
+#     log_system_resource()
+#     st.session_state["resource_logged"] = True
 
 # import psutil, os
 
@@ -991,5 +991,6 @@ with tab3:
     else:
 
         st.warning("⚠️ Please run the topic prediction first.")
+
 
 
