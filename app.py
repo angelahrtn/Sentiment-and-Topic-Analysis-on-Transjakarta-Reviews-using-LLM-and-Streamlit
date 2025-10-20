@@ -10,57 +10,20 @@ import time
 from Sastrawi.StopWordRemover.StopWordRemoverFactory import StopWordRemoverFactory
 import altair as alt
 from bertopic import BERTopic
+# from nlp_id.lemmatizer import Lemmatizer
 import stanza
 import io
-import os
-import psutil
-import shutil
-import logging
-
-logging.basicConfig(level=logging.INFO, format="%(message)s")
-
-# === Resource Monitor ===
-def log_system_resource():
-    process = psutil.Process(os.getpid())
-    mem = process.memory_info().rss / (1024 * 1024)  # MB
-    cpu_percent = psutil.cpu_percent(interval=None)
-    total, used, free = shutil.disk_usage("/")
-
-    logging.info("\n===== STREAMLIT APP RESOURCE INFO =====")
-    logging.info(f"Current Memory Usage : {mem:.2f} MB")
-    logging.info(f"CPU Usage            : {cpu_percent:.2f}%")
-    logging.info(f"Storage Total        : {total / (1024**3):.2f} GB")
-    logging.info(f"Storage Used         : {used / (1024**3):.2f} GB")
-    logging.info(f"Storage Free         : {free / (1024**3):.2f} GB")
-    logging.info("========================================\n")
-
-# panggil langsung di awal
-log_system_resource()
-
-# ===============================
-# Bersihkan state kalau session baru dimulai
-# ===============================
-if st.session_state.get("is_new_session", True):
-    for key in list(st.session_state.keys()):
-        del st.session_state[key]
-    st.session_state.is_new_session = False
-
-# ===============================
-# Pastikan file uploader kosong 
-# ===============================
-if "file_upload" in st.session_state:
-    del st.session_state["file_upload"]
 
 # ===============================
 # Konfigurasi halaman
 # ===============================
 st.set_page_config(
-    page_title="🚍 Transjakarta Review Insight",
+    page_title="🚍 Transjakarta Reviews: Sentiment & Topic Analysis",
     layout="wide",
 )
 
 # --- Header utama ---
-st.markdown("# 🚍 Transjakarta Review Insight")
+st.markdown("# 🚍 Transjakarta Reviews: Sentiment & Topic Analysis")
 st.markdown("Analyze user reviews to uncover sentiment trends and popular discussion topics about Transjakarta")
 st.caption("Upload Data -> Analyze Sentiment -> Analyze Topic")
 
@@ -107,7 +70,7 @@ contraction_map = {
     "blm": "belum", "jg": "juga", "tp": "tapi", "trs": "terus", "krn": "karena",
     "klo": "kalau", "sm": "sama", "aj": "saja", "aja": "saja", "bgt": "banget",
     "gitu": "begitu", "kyk": "seperti", "tj": "transjakarta", "trnsjkt": "transjakarta",
-    "tije": "transjakarta", "jawabbb": "jawab", "app": "aplikasi", "apps": "aplikasi", "apk": "aplikasi"
+    "tije": "transjakarta", "jawabbb": "jawab"
 }
 
 def clean_text(text):
@@ -152,8 +115,10 @@ def remove_stopwords_topic(text):
 # ==============================
 @st.cache_resource
 def load_lemmatizer():
+    # from nlp_id.lemmatizer import Lemmatizer
     stanza.download('id', processors='tokenize,pos,lemma')
     nlp = stanza.Pipeline(lang='id', processors='tokenize,pos,lemma')
+    # return Lemmatizer()
     return nlp
 
 def lemmatize_text(nlp, text):
@@ -162,7 +127,7 @@ def lemmatize_text(nlp, text):
     for sent in doc.sentences:
         for word in sent.words:
             lemmas.append(word.lemma)
-    return " ".join(lemmas)
+    return " ".join(lemmas)
 
 # ==============================
 # Prediction function - sentiment
@@ -186,12 +151,12 @@ def predict_topic_neg(text):
 label_map_topic_neg = {
     -1: "Outlier",
     0: "Layanan Transjakarta",
-    1: "Sistem Pembayaran",
-    2: "Waktu Tunggu",
-    3: "Ketersediaan Armada",
-    4: "Sistem Pengumuman",
+    1: "Sistem pembayaran",
+    2: "Waktu tunggu",
+    3: "Ketersediaan armada",
+    4: "Sistem pengumuman",
     5: "Aplikasi Transjakarta",
-    6: "Fasilitas Halte"
+    6: "Fasilitas halte"
 }
 
 # ==============================
@@ -203,9 +168,9 @@ def predict_topic_net(text):
 
 label_map_topic_net = {
     -1: "Outlier",
-    0: "Panduan Rute",
-    1: "Jadwal Operasional Bus",
-    2: "Informasi Sistem Pembayaran"
+    0: "Panduan rute",
+    1: "Jadwal operasional bus",
+    2: "Informasi sistem pembayaran"
 }
 
 # ==============================
@@ -217,11 +182,11 @@ def predict_topic_pos(text):
 
 label_map_topic_pos = {
     -1: "Outlier",
-    0: "Kenyamanan Transportasi dan Supir",
-    1: "Apresiasi Pelayanan Petugas",
-    2: "Pengalaman Positif Layanan Transjakarta",
-    3: "Ekspresi Pujian",
-    4: "Ekspansi Rute dan Mobilitas"
+    0: "Kenyamanan transportasi dan supir",
+    1: "Apresiasi pelayanan petugas",
+    2: "Pengalaman positif layanan Transjakarta",
+    3: "Ekspresi pujian",
+    4: "Ekspansi rute dan mobilitas"
 }
 
 # ==============================
@@ -267,13 +232,8 @@ with tab1:
     st.subheader("📁 Upload Data")
     st.info("Upload a **.csv** file with **one text column** of user reviews")
 
-    uploaded_file = st.file_uploader(
-    "Upload CSV Dataset",
-    type=["csv"],
-    accept_multiple_files=False,
-    key="file_upload" 
-    )
-
+    uploaded_file = st.file_uploader("Drag and drop your CSV file here", type=["csv"], accept_multiple_files=False)
+    
     if uploaded_file is not None:
         df = pd.read_csv(uploaded_file)
 
@@ -314,22 +274,26 @@ with tab1:
                         df_net = df[df["Predicted_Label"] == "Netral"][[col_name, "cleaned_text"]].copy()
                         df_pos = df[df["Predicted_Label"] == "Positif"][[col_name, "cleaned_text"]].copy()
 
+                        # lemmatizer = load_lemmatizer()
                         nlp = load_lemmatizer()
 
                         if not df_neg.empty:
                             df_neg["stopword_removed"] = df_neg["cleaned_text"].apply(remove_stopwords_topic)
+                            # df_neg["lemmatized_text"] = df_neg["stopword_removed"].apply(lambda x: lemmatizer.lemmatize(x))
                             df_neg["lemmatized_text"] = df_neg["stopword_removed"].apply(lambda x: lemmatize_text(nlp, x))
                             df_neg["Predicted_Topic"] = df_neg["lemmatized_text"].apply(lambda x: label_map_topic_neg[predict_topic_neg(x)])
                             st.session_state.df_neg_topic = df_neg
                         
                         if not df_net.empty:
                             df_net["stopword_removed"] = df_net["cleaned_text"].apply(remove_stopwords_topic)
+                            # df_net["lemmatized_text"] = df_net["stopword_removed"].apply(lambda x: lemmatizer.lemmatize(x))
                             df_net["lemmatized_text"] = df_net["stopword_removed"].apply(lambda x: lemmatize_text(nlp, x))
                             df_net["Predicted_Topic"] = df_net["lemmatized_text"].apply(lambda x: label_map_topic_net[predict_topic_net(x)])
                             st.session_state.df_net_topic = df_net
 
                         if not df_pos.empty:
                             df_pos["stopword_removed"] = df_pos["cleaned_text"].apply(remove_stopwords_topic)
+                            # df_pos["lemmatized_text"] = df_pos["stopword_removed"].apply(lambda x: lemmatizer.lemmatize(x))
                             df_pos["lemmatized_text"] = df_pos["stopword_removed"].apply(lambda x: lemmatize_text(nlp, x))
                             df_pos["Predicted_Topic"] = df_pos["lemmatized_text"].apply(lambda x: label_map_topic_pos[predict_topic_pos(x)])
                             st.session_state.df_pos_topic = df_pos
@@ -337,10 +301,11 @@ with tab1:
                         st.session_state.topic_done = True
             else:
                 st.button("💡 Run Topic Prediction", disabled=True)
-                st.caption("⚠️ Please run sentiment prediction first to enable topic prediction.")
+                st.caption("⚠ Please run sentiment prediction first to enable topic prediction.")
 
             if st.session_state.topic_done:
                 st.success("✅ Topic prediction complete! Go to **Tab '💡 Topic Analysis'** to view results.")
+
 
 # ==============================
 # Tab 2 - Sentiment Results
@@ -536,8 +501,8 @@ with tab3:
                 # Bar chart distribution
                 st.subheader("📈 Negative Topic Distribution")
                 st.write("📌 The topics below represent negative feedback & issues reported by Transjakarta users")
-                order_neg = ["Layanan Transjakarta", "Sistem Pembayaran", "Waktu Tunggu", "Ketersediaan Armada",
-                             "Sistem Pengumuman", "Aplikasi Transjakarta", "Fasilitas Halte"]
+                order_neg = ["Layanan Transjakarta", "Sistem pembayaran", "Waktu tunggu", "Ketersediaan armada",
+                             "Sistem pengumuman", "Aplikasi Transjakarta", "Fasilitas halte"]
                 topic_counts_neg = (
                     df_neg["Predicted_Topic"]
                     .value_counts()
@@ -577,6 +542,7 @@ with tab3:
                     height=400    
                 )
 
+
                 text_neg = bars_neg.mark_text(
                     align="center",
                     baseline="bottom",
@@ -594,12 +560,12 @@ with tab3:
                 # Word Cloud
                 topic_color_map_neg = {
                     "Layanan Transjakarta": "#8DAFC8",
-                    "Sistem Pembayaran": "#FEB989",
-                    "Waktu Tunggu": "#F49A9D",
-                    "Ketersediaan Armada": "#A4D3D0",
-                    "Sistem Pengumuman": "#96C498",
+                    "Sistem pembayaran": "#FEB989",
+                    "Waktu tunggu": "#F49A9D",
+                    "Ketersediaan armada": "#A4D3D0",
+                    "Sistem pengumuman": "#96C498",
                     "Aplikasi Transjakarta": "#F9DC98",
-                    "Fasilitas Halte": "#DAB7E3"
+                    "Fasilitas halte": "#DAB7E3"
                 }
                 
                 def generate_wordcloud_neg(texts, topic):
@@ -640,14 +606,12 @@ with tab3:
 
                         buf = io.BytesIO()
                         fig.savefig(buf, format="png", bbox_inches="tight", dpi=120)
-                        buf.seek(0)
                         
                         col1, col2, col3 = st.columns([1, 2, 1])
                         with col2:
                             st.markdown(f"""<div style='text-align:center; font-weight:600; font-size:20px'>
                                         Topic: {selected_topic} </div>""", unsafe_allow_html=True)
                             st.image(buf, use_container_width=True)
-                        plt.close(fig)
                     else:
                         st.info("No text data available for this topic.")
 
@@ -699,7 +663,7 @@ with tab3:
                 # Bar chart distribution
                 st.subheader("📈 Neutral Topic Distribution")
                 st.write("📌 The topics below represent feedback & inquiries from Transjakarta users")
-                order_net = ["Panduan Rute", "Jadwal Operasional Bus", "Informasi Sistem Pembayaran"]
+                order_net = ["Panduan rute", "Jadwal operasional bus", "Informasi sistem pembayaran"]
                 topic_counts_net = (
                     df_net["Predicted_Topic"]
                     .value_counts()
@@ -749,8 +713,8 @@ with tab3:
                 # Word Cloud
                 topic_color_map_net = {
                     "Panduan rute": "#8DAFC8",
-                    "Jadwal Operasional Bus": "#FEB989",
-                    "Informasi Sistem Pembayaran": "#DAB7E3"
+                    "Jadwal operasional bus": "#FEB989",
+                    "Informasi sistem pembayaran": "#DAB7E3"
                 }
                 
                 def generate_wordcloud_net(texts, topic):
@@ -791,14 +755,12 @@ with tab3:
 
                         buf = io.BytesIO()
                         fig.savefig(buf, format="png", bbox_inches="tight", dpi=120)
-                        buf.seek(0)
                         
                         col1, col2, col3 = st.columns([1, 2, 1])
                         with col2:
                             st.markdown(f"""<div style='text-align:center; font-weight:600; font-size:20px'>
                                         Topic: {selected_topic} </div>""", unsafe_allow_html=True)
                             st.image(buf, use_container_width=True)
-                        plt.close(fig)
                     else:
                         st.info("No text data available for this topic.")
 
@@ -851,8 +813,8 @@ with tab3:
                 # Bar chart distribution
                 st.subheader("📈 Positive Topic Distribution")
                 st.write("📌 The topics below represent positive feedback & appreciation from Transjakarta users")
-                order_pos = ["Kenyamanan Transportasi dan Supir", "Apresiasi Pelayanan Petugas",
-                             "Pengalaman Positif Layanan Transjakarta", "Ekspresi Pujian", "Ekspansi Rute dan Mobilitas"]
+                order_pos = ["Kenyamanan transportasi dan supir", "Apresiasi pelayanan petugas",
+                             "Pengalaman positif layanan Transjakarta", "Ekspresi pujian", "Ekspansi rute dan mobilitas"]
                 topic_counts_pos = (
                     df_pos["Predicted_Topic"]
                     .value_counts()
@@ -902,11 +864,11 @@ with tab3:
 
                 # Word Cloud
                 topic_color_map_pos = {
-                    "Kenyamanan Transportasi dan Supir": "#F49A9D",
-                    "Apresiasi Pelayanan Petugas": "#A4D3D0",
-                    "Pengalaman Positif Layanan Transjakarta": "#96C498",
-                    "Ekspresi Pujian": "#F9DC98",
-                    "Ekspansi Rute dan Mobilitas": "#DAB7E3"
+                    "Kenyamanan transportasi dan supir": "#F49A9D",
+                    "Apresiasi pelayanan petugas": "#A4D3D0",
+                    "Pengalaman positif layanan Transjakarta": "#96C498",
+                    "Ekspresi pujian": "#F9DC98",
+                    "Ekspansi rute dan mobilitas": "#DAB7E3"
                 }
                 
                 def generate_wordcloud_pos(texts, topic):
@@ -947,14 +909,12 @@ with tab3:
 
                         buf = io.BytesIO()
                         fig.savefig(buf, format="png", bbox_inches="tight", dpi=120)
-                        buf.seek(0)
                         
                         col1, col2, col3 = st.columns([1, 2, 1])
                         with col2:
                             st.markdown(f"""<div style='text-align:center; font-weight:600; font-size:20px'>
                                         Topic: {selected_topic} </div>""", unsafe_allow_html=True)
                             st.image(buf, use_container_width=True)
-                        plt.close(fig)
                     else:
                         st.info("No text data available for this topic.")
 
@@ -1000,10 +960,5 @@ with tab3:
                     )
 
     else:
+
         st.warning("⚠️ Please run the topic prediction first.")
-
-
-
-
-
-
