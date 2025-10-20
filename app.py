@@ -99,7 +99,7 @@ contraction_map = {
     "blm": "belum", "jg": "juga", "tp": "tapi", "trs": "terus", "krn": "karena",
     "klo": "kalau", "sm": "sama", "aj": "saja", "aja": "saja", "bgt": "banget",
     "gitu": "begitu", "kyk": "seperti", "tj": "transjakarta", "trnsjkt": "transjakarta",
-    "tije": "transjakarta", "jawabbb": "jawab", , "app": "aplikasi", "apps": "aplikasi", "apk": "aplikasi"
+    "tije": "transjakarta", "jawabbb": "jawab", "app": "aplikasi", "apps": "aplikasi", "apk": "aplikasi"
 }
 
 def clean_text(text):
@@ -991,6 +991,7 @@ with tab3:
     else:
 
         st.warning("⚠️ Please run the topic prediction first.")
+
 
 
 
