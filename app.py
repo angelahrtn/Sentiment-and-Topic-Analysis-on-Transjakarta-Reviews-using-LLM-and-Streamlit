@@ -13,6 +13,14 @@ from bertopic import BERTopic
 import stanza
 import io
 
+import psutil, os
+
+mem = psutil.Process(os.getpid()).memory_info().rss / (1024 * 1024)
+st.write(f"Current memory usage: {mem:.2f} MB")
+
+print("CPU usage:", psutil.cpu_percent(interval=1))
+print("RAM usage:", psutil.virtual_memory().percent)
+
 # ===============================
 # Bersihkan state kalau session baru dimulai
 # ===============================
@@ -977,3 +985,4 @@ with tab3:
 
     else:
         st.warning("⚠️ Please run the topic prediction first.")
+
