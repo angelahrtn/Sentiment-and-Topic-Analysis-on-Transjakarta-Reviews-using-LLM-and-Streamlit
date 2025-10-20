@@ -15,9 +15,7 @@ import io
 import os
 import psutil
 import shutil
-
 import logging
-import os, psutil, shutil
 
 logging.basicConfig(level=logging.INFO, format="%(message)s")
 
@@ -1003,6 +1001,7 @@ with tab3:
 
     else:
         st.warning("⚠️ Please run the topic prediction first.")
+
 
 
 
