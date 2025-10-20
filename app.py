@@ -250,17 +250,6 @@ with tab1:
     key="file_upload" 
     )
 
-    # --- Bersihkan state kalau session baru dimulai ---
-    if st.session_state.get("is_new_session", True):
-        for key in list(st.session_state.keys()):
-            del st.session_state[key]
-        st.session_state.is_new_session = False
-
-    # --- Tambahan opsional: pastikan file uploader kosong ---
-    if "file_upload" in st.session_state:
-        del st.session_state["file_upload"]
-
-
     if uploaded_file is not None:
         df = pd.read_csv(uploaded_file)
 
