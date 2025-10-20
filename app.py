@@ -16,25 +16,23 @@ import os
 import psutil
 import shutil
 
-# --- Info Resource Aplikasi ---
-process = psutil.Process(os.getpid())
+# === Resource Monitor ===
+def log_system_resource():
+    process = psutil.Process(os.getpid())
+    mem = process.memory_info().rss / (1024 * 1024)  # MB
+    cpu_percent = psutil.cpu_percent(interval=1)
+    total, used, free = shutil.disk_usage("/")
 
-# Memory (RAM)
-mem = process.memory_info().rss / (1024 * 1024)  # dalam MB
+    print("\n===== STREAMLIT APP RESOURCE INFO =====")
+    print(f"Current Memory Usage : {mem:.2f} MB")
+    print(f"CPU Usage            : {cpu_percent:.2f}%")
+    print(f"Storage Total           : {total / (1024**3):.2f} GB")
+    print(f"Storage Used            : {used / (1024**3):.2f} GB")
+    print(f"Storage Free            : {free / (1024**3):.2f} GB")
+    print("========================================\n")
 
-# CPU
-cpu_percent = psutil.cpu_percent(interval=1)
-
-# Storage
-total, used, free = shutil.disk_usage("/")
-
-print("\n===== STREAMLIT APP RESOURCE INFO =====")
-print(f"Current Memory Usage : {mem:.2f} MB")
-print(f"CPU Usage            : {cpu_percent:.2f}%")
-print(f"Disk Total           : {total / (1024**3):.2f} GB")
-print(f"Disk Used            : {used / (1024**3):.2f} GB")
-print(f"Disk Free            : {free / (1024**3):.2f} GB")
-print("========================================\n")
+# panggil langsung di awal (biar log keluar setiap startup)
+log_system_resource()
 
 # ===============================
 # Bersihkan state kalau session baru dimulai
@@ -1000,5 +998,6 @@ with tab3:
 
     else:
         st.warning("⚠️ Please run the topic prediction first.")
+
 
 
