@@ -12,14 +12,29 @@ import altair as alt
 from bertopic import BERTopic
 import stanza
 import io
+import os
+import psutil
+import shutil
 
-import psutil, os
+# --- Info Resource Aplikasi ---
+process = psutil.Process(os.getpid())
 
-mem = psutil.Process(os.getpid()).memory_info().rss / (1024 * 1024)
-st.write(f"Current memory usage: {mem:.2f} MB")
+# Memory (RAM)
+mem = process.memory_info().rss / (1024 * 1024)  # dalam MB
 
-print("CPU usage:", psutil.cpu_percent(interval=1))
-print("RAM usage:", psutil.virtual_memory().percent)
+# CPU
+cpu_percent = psutil.cpu_percent(interval=1)
+
+# Storage
+total, used, free = shutil.disk_usage("/")
+
+print("\n===== STREAMLIT APP RESOURCE INFO =====")
+print(f"Current Memory Usage : {mem:.2f} MB")
+print(f"CPU Usage            : {cpu_percent:.2f}%")
+print(f"Disk Total           : {total / (1024**3):.2f} GB")
+print(f"Disk Used            : {used / (1024**3):.2f} GB")
+print(f"Disk Free            : {free / (1024**3):.2f} GB")
+print("========================================\n")
 
 # ===============================
 # Bersihkan state kalau session baru dimulai
@@ -985,4 +1000,5 @@ with tab3:
 
     else:
         st.warning("⚠️ Please run the topic prediction first.")
+
 
