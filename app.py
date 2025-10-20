@@ -14,6 +14,14 @@ import stanza
 import io
 
 # ===============================
+# Bersihkan state kalau session baru dimulai
+# ===============================
+if st.session_state.get("is_new_session", True):
+    for key in list(st.session_state.keys()):
+        del st.session_state[key]
+    st.session_state.is_new_session = False
+
+# ===============================
 # Konfigurasi halaman
 # ===============================
 st.set_page_config(
@@ -31,7 +39,7 @@ st.caption("Upload Data -> Analyze Sentiment -> Analyze Topic")
 # ==============================
 @st.cache_resource
 def load_sentiment_model():
-    repo_id = "feliciaatandoko/model_indobert"
+    repo_id = "ngela/indobert_sentiment_prediction"
     sentiment_model = BertForSequenceClassification.from_pretrained(repo_id)
     sentiment_tokenizer = BertTokenizer.from_pretrained(repo_id)
     return sentiment_model, sentiment_tokenizer
@@ -229,8 +237,14 @@ with tab1:
     st.subheader("📁 Upload Data")
     st.info("Upload a **.csv** file with **one text column** of user reviews")
 
-    uploaded_file = st.file_uploader("Drag and drop your CSV file here", type=["csv"], accept_multiple_files=False)
-    
+    uploaded_file = st.file_uploader(
+    "Upload CSV Dataset",
+    type=["csv"],
+    accept_multiple_files=False,
+    key="file_upload",
+    clear_on_refresh=True  
+    )
+
     if uploaded_file is not None:
         df = pd.read_csv(uploaded_file)
 
