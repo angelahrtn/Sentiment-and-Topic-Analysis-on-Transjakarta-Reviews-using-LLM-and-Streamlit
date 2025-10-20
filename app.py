@@ -12,6 +12,7 @@ import altair as alt
 from bertopic import BERTopic
 # from nlp_id.lemmatizer import Lemmatizer
 import stanza
+import io
 import os
 import psutil
 import shutil
@@ -19,13 +20,11 @@ import logging
 
 logging.basicConfig(level=logging.INFO, format="%(message)s")
 
-# === Resource Monitor ===
 def log_system_resource():
     process = psutil.Process(os.getpid())
-    mem = process.memory_info().rss / (1024 * 1024)  # MB
+    mem = process.memory_info().rss / (1024 * 1024)
     cpu_percent = psutil.cpu_percent(interval=None)
     total, used, free = shutil.disk_usage("/")
-
     logging.info("\n===== STREAMLIT APP RESOURCE INFO =====")
     logging.info(f"Current Memory Usage : {mem:.2f} MB")
     logging.info(f"CPU Usage            : {cpu_percent:.2f}%")
@@ -34,10 +33,11 @@ def log_system_resource():
     logging.info(f"Storage Free         : {free / (1024**3):.2f} GB")
     logging.info("========================================\n")
 
-# panggil langsung di awal
-log_system_resource()
+# Jalankan log hanya sekali di awal sesi
+if "resource_logged" not in st.session_state:
+    log_system_resource()
+    st.session_state["resource_logged"] = True
 
-# import io
 # import psutil, os
 
 # mem = psutil.Process(os.getpid()).memory_info().rss / (1024 * 1024)
@@ -991,4 +991,5 @@ with tab3:
     else:
 
         st.warning("⚠️ Please run the topic prediction first.")
+
 
