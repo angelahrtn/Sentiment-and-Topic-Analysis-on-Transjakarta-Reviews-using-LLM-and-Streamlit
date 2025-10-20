@@ -38,11 +38,6 @@ if "resource_logged" not in st.session_state:
     log_system_resource()
     st.session_state["resource_logged"] = True
 
-# import psutil, os
-
-# mem = psutil.Process(os.getpid()).memory_info().rss / (1024 * 1024)
-# st.write(f"Current memory usage: {mem:.2f} MB")
-
 # ===============================
 # Konfigurasi halaman
 # ===============================
@@ -991,6 +986,7 @@ with tab3:
     else:
 
         st.warning("⚠️ Please run the topic prediction first.")
+
 
 
 
