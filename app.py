@@ -13,17 +13,21 @@ from bertopic import BERTopic
 # from nlp_id.lemmatizer import Lemmatizer
 import stanza
 import io
+import psutil, os
+
+mem = psutil.Process(os.getpid()).memory_info().rss / (1024 * 1024)
+st.write(f"Current memory usage: {mem:.2f} MB")
 
 # ===============================
 # Konfigurasi halaman
 # ===============================
 st.set_page_config(
-    page_title="🚍 Transjakarta Reviews: Sentiment & Topic Analysis",
+    page_title="🚍 Transjakarta Review Insight",
     layout="wide",
 )
 
 # --- Header utama ---
-st.markdown("# 🚍 Transjakarta Reviews: Sentiment & Topic Analysis")
+st.markdown("# 🚍 Transjakarta Review Insight")
 st.markdown("Analyze user reviews to uncover sentiment trends and popular discussion topics about Transjakarta")
 st.caption("Upload Data -> Analyze Sentiment -> Analyze Topic")
 
