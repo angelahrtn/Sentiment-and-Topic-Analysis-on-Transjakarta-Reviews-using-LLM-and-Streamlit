@@ -50,12 +50,19 @@ def log_system_resource():
     
     # Menampilkan perubahan penggunaan
     logging.info("\n===== CHANGE SINCE LAST CHECK =====")
-    # Log perubahan CPU (gunakan + atau - tergantung tanda perubahan)
-    logging.info(f"• CPU Change: {cpu_change:+.2f}%") 
-    logging.info(f"• Memory Change: {mem_change:+.2f} MB") 
-    logging.info(f"• Storage Change: {storage_change:+.2f} GB")  
     
-    # Update session_state dengan nilai saat ini untuk perbandingan kedepannya
+    # Untuk CPU, kita tampilkan perubahan sebagai persentase perubahan (jika ada)
+    if prev_cpu != 0:
+        cpu_change_percent = ((cpu_change / prev_cpu) * 100) if prev_cpu != 0 else 0
+        logging.info(f"• CPU Change: {cpu_change_percent:+.2f}%")
+    
+    # Menampilkan perubahan dalam memori
+    logging.info(f"• Memory Change: {mem_change:+.2f} MB")
+    
+    # Menampilkan perubahan dalam penyimpanan
+    logging.info(f"• Storage Change: {storage_change:+.2f} GB")
+    
+    # Update session_state dengan nilai saat ini untuk perbandingan di masa depan
     st.session_state["prev_mem"] = mem
     st.session_state["prev_cpu"] = cpu_percent
     st.session_state["prev_used_storage"] = used
@@ -1014,6 +1021,7 @@ with tab3:
     else:
 
         st.warning("⚠️ Please run the topic prediction first.")
+
 
 
 
