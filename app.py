@@ -25,25 +25,40 @@ logging.basicConfig(level=logging.INFO, format="%(message)s")
 
 # Resource Monitor
 def log_system_resource():
+    # Ambil informasi penggunaan saat ini
     process = psutil.Process(os.getpid())
-    mem = process.memory_info().rss / (1024 * 1024)
+    mem = process.memory_info().rss / (1024 * 1024)  # dalam MB
     cpu_percent = psutil.cpu_percent(interval=None)
     total, used, free = shutil.disk_usage("/")
-    logging.info("\n===== STREAMLIT APP RESOURCE INFO =====")
-    logging.info(f"Current Memory Usage : {mem:.2f} MB")
-    logging.info(f"CPU Usage            : {cpu_percent:.2f}%")
-    logging.info(f"Storage Total        : {total / (1024**3):.2f} GB")
-    logging.info(f"Storage Used         : {used / (1024**3):.2f} GB")
-    logging.info(f"Storage Free         : {free / (1024**3):.2f} GB")
-    logging.info("========================================\n")
-
-    # Format output as per the requested style
+    
+    # Ambil penggunaan sebelumnya dari session_state (jika ada)
+    prev_mem = st.session_state.get('prev_mem', 0)
+    prev_cpu = st.session_state.get('prev_cpu', 0)
+    prev_used_storage = st.session_state.get('prev_used_storage', 0)
+    
+    # Hitung perubahan dari nilai sebelumnya
+    mem_change = mem - prev_mem
+    cpu_change = cpu_percent - prev_cpu
+    storage_change = (used / (1024**3)) - (prev_used_storage / (1024**3))
+    
+    # Menampilkan log informasi sistem
     logging.info("\n===== SYSTEM RESOURCE USAGE =====")
     logging.info(f"• CPU Usage: {cpu_percent:.3f} cores minimum, {cpu_percent:.0f} cores maximum")
-    logging.info(f"• Memory Memory Usage: {mem:.0f}MB minimum, {mem:.1f}MB maximum")
-    logging.info(f"Storage Total        : {total / (1024**3):.2f} GB")
-    logging.info(f"Storage Used         : {used / (1024**3):.2f} GB")
-    logging.info(f"Storage Free         : {free / (1024**3):.2f} GB")
+    logging.info(f"• Memory Usage: {mem:.0f}MB minimum, {mem:.1f}MB maximum")
+    logging.info(f"• Storage Used: {used / (1024**3):.2f} GB")
+    logging.info(f"• Storage Free: {free / (1024**3):.2f} GB")
+    
+    # Menampilkan perubahan penggunaan
+    logging.info("\n===== CHANGE SINCE LAST CHECK =====")
+    logging.info(f"• CPU Change: {cpu_change:.2f}% increase/decrease")
+    logging.info(f"• Memory Change: {mem_change:.2f} MB increase/decrease")
+    logging.info(f"• Storage Change: {storage_change:.2f} GB increase/decrease")
+    
+    # Update session_state dengan nilai saat ini untuk perbandingan di masa depan
+    st.session_state["prev_mem"] = mem
+    st.session_state["prev_cpu"] = cpu_percent
+    st.session_state["prev_used_storage"] = used
+
     logging.info("========================================\n")
 
 # Jalankan log hanya sekali di awal sesi
@@ -998,6 +1013,7 @@ with tab3:
     else:
 
         st.warning("⚠️ Please run the topic prediction first.")
+
 
 
 
