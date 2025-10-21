@@ -44,7 +44,7 @@ def log_system_resource():
     # Menampilkan log informasi sistem
     logging.info("\n===== SYSTEM RESOURCE USAGE =====")
     logging.info(f"• CPU Usage: {cpu_percent:.3f} cores minimum, {cpu_percent:.0f} cores maximum")
-    logging.info(f"• Memory Usage: {mem:.0f}MB minimum, {mem:.1f}MB maximum")
+    logging.info(f"• Memory Usage: {mem:.2f}MB minimum, {mem:.2f}MB maximum")
     logging.info(f"• Storage Used: {used / (1024**3):.2f} GB")
     logging.info(f"• Storage Free: {free / (1024**3):.2f} GB")
     
@@ -1021,6 +1021,7 @@ with tab3:
     else:
 
         st.warning("⚠️ Please run the topic prediction first.")
+
 
 
 
