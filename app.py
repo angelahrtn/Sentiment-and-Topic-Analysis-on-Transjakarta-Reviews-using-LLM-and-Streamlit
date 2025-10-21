@@ -589,11 +589,11 @@ with tab3:
                 topic_color_map_neg = {
                     "Layanan Transjakarta": "#8DAFC8",
                     "Sistem Pembayaran": "#FEB989",
-                    "Waktu tunggu": "#F49A9D",
-                    "Ketersediaan armada": "#A4D3D0",
-                    "Sistem pengumuman": "#96C498",
+                    "Waktu Tunggu": "#F49A9D",
+                    "Ketersediaan Armada": "#A4D3D0",
+                    "Sistem Pengumuman": "#96C498",
                     "Aplikasi Transjakarta": "#F9DC98",
-                    "Fasilitas halte": "#DAB7E3"
+                    "Fasilitas Halte": "#DAB7E3"
                 }
                 
                 def generate_wordcloud_neg(texts, topic):
@@ -990,6 +990,7 @@ with tab3:
     else:
 
         st.warning("⚠️ Please run the topic prediction first.")
+
 
 
 
