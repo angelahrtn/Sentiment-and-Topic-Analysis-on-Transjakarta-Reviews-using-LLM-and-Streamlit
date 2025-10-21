@@ -11,7 +11,7 @@ from Sastrawi.StopWordRemover.StopWordRemoverFactory import StopWordRemoverFacto
 import altair as alt
 from bertopic import BERTopic
 # from nlp_id.lemmatizer import Lemmatizer
-import stanza
+# import stanza
 import io
 import os
 import psutil
@@ -152,10 +152,9 @@ def remove_stopwords_topic(text):
 # ==============================
 @st.cache_resource
 def load_lemmatizer():
-    # from nlp_id.lemmatizer import Lemmatizer
-    stanza.download('id', processors='tokenize,pos,lemma')
+    import stanza
+    stanza.download('id')
     nlp = stanza.Pipeline(lang='id', processors='tokenize,pos,lemma')
-    # return Lemmatizer()
     return nlp
 
 def lemmatize_text(nlp, text):
@@ -999,6 +998,7 @@ with tab3:
     else:
 
         st.warning("⚠️ Please run the topic prediction first.")
+
 
 
 
