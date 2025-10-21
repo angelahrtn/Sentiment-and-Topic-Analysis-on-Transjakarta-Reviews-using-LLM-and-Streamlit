@@ -24,6 +24,9 @@ import logging
 logging.basicConfig(level=logging.INFO, format="%(message)s")
 
 # Resource Monitor
+logging.basicConfig(level=logging.INFO, format="%(message)s")
+
+# Resource Monitor
 def log_system_resource():
     process = psutil.Process(os.getpid())
     mem = process.memory_info().rss / (1024 * 1024)
@@ -1035,6 +1038,7 @@ with tab3:
     else:
 
         st.warning("⚠️ Please run the topic prediction first.")
+
 
 
 
