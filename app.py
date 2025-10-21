@@ -37,6 +37,15 @@ def log_system_resource():
     logging.info(f"Storage Free         : {free / (1024**3):.2f} GB")
     logging.info("========================================\n")
 
+    # Format output as per the requested style
+    logging.info("\n===== SYSTEM RESOURCE USAGE =====")
+    logging.info(f"• CPU Usage: {cpu_percent:.3f} cores minimum, {cpu_percent:.0f} cores maximum")
+    logging.info(f"• Memory Memory Usage: {mem:.0f}MB minimum, {mem:.1f}MB maximum")
+    logging.info(f"Storage Total        : {total / (1024**3):.2f} GB")
+    logging.info(f"Storage Used         : {used / (1024**3):.2f} GB")
+    logging.info(f"Storage Free         : {free / (1024**3):.2f} GB")
+    logging.info("========================================\n")
+
 # Jalankan log hanya sekali di awal sesi
 if "resource_logged" not in st.session_state:
     log_system_resource()
@@ -990,6 +999,7 @@ with tab3:
     else:
 
         st.warning("⚠️ Please run the topic prediction first.")
+
 
 
 
